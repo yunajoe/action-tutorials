@@ -1,0 +1,36 @@
+name: Auto Merge PR on Approval
+
+on:
+  pull_request:
+    branches:
+      - main # main 브랜치에 대한 PR만 처리합니다.
+    types:
+      - reviewed # PR이 승인되었을 때
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. GitHub CLI 설치
+      - name: Set up GitHub CLI
+        uses: cli/cli-action@v2
+        with:
+          github-token: ${{ secrets.GITHUBTOKEN }} # GitHub API를 호출할 수 있도록 토큰을 제공합니다.
+
+      # 2. PR이 승인되었는지 확인
+      - name: Check if PR is approved
+        run: |
+          approval_status=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq '.reviews | map(select(.state == "APPROVED")) | length')
+          if [ "$approval_status" -gt 0 ]; then
+            echo "PR is approved"
+          else
+            echo "PR is not approved, exiting"
+            exit 1  # 승인되지 않은 경우 파이프라인 종료
+          fi
+
+      # 3. 자동 머지
+      - name: Merge PR automatically
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --merge --admin --delete-branch
+          echo "PR has been merged successfully"
