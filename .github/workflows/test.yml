@@ -1,23 +1,19 @@
 name: Run Jest
 
-# Controls when the workflow will run
 on:
   push:
     branches: ["develop"]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "test"
-  test:
-    # The type of runner that the job will run on
+  counter test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3 # Checkout action을 사용하여 코드를 가져옵니다.
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3 # Node.js를 설정합니다.
+        uses: actions/setup-node@v3
 
       - name: Install dependencies
         run: |
